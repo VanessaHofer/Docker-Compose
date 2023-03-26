@@ -1,0 +1,38 @@
+version: "3.8"
+# Docker-Compose-Version
+
+services:
+  web:
+    build: ./frontend # Dockerfile zur Erstellung des Containers für die Frontend-Anwendung
+    depends_on:
+      - api # Stellt sicher, dass der api-Container zuerst gestartet wird
+    ports:
+      - "3000:3000" # Portmapping des Hosts auf den Web-Container
+    networks:
+      - network-backend # Netzwerkverbindung für den Web-Container
+  
+  api:
+    build: ./backend # Dockerfile zur Erstellung des Containers für die Backend-Anwendung
+    depends_on:
+      - mongo # Stellt sicher, dass der mongo-Container zuerst gestartet wird
+    ports:
+      - "3001:3001" # Portmapping des Hosts auf den API-Container
+    networks: 
+     - network-backend # Netzwerkverbindung für den API-Container
+  
+  mongo:
+    image: mongo # Verwendung des offiziellen MongoDB-Images aus dem Docker Hub
+    restart: always # Container immer automatisch neu starten
+    volumes: 
+      - mongodb_data:/data/db # Mounten eines Volumes zur persistenten Speicherung der Datenbank
+    environment: 
+      MONGODB_INITDB_ROOT_USERNAME: username # Username für den Datenbankzugriff
+      MONGODB_INITDB_ROOT_PASSWORD: password # Passwort für den Datenbankzugriff
+    networks: 
+     - network-backend # Netzwerkverbindung für den MongoDB-Container
+
+networks:
+  network-backend: # Definiert ein gemeinsames Netzwerk für alle Container
+
+volumes: 
+  mongodb_data: # Definiert ein benanntes Volumen zur Speicherung der MongoDB-Daten
